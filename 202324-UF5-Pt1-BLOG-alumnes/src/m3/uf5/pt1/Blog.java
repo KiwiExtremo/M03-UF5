@@ -152,24 +152,29 @@ public class Blog {
 	}
 
 	public String imprimirBlog() throws Exception {
-		StringBuilder blogSencer = new StringBuilder();
+		String blogSencer = "";
 		
-		blogSencer.append(StringUtils.repeat(" ", AMPLE_CONTENT + GAP + AMPLE_LEFT));
-		blogSencer.append(System.lineSeparator());
-		blogSencer.append(StringUtils.center("BLOG UF5 - PE1 (" + usuaris.size() + " usuaris/es, " + entrades.size() + " entrades)", AMPLE_CONTENT + GAP + AMPLE_LEFT, " "));
-		blogSencer.append(System.lineSeparator());
-		blogSencer.append(StringUtils.repeat("^", AMPLE_CONTENT + GAP + AMPLE_LEFT));
-		blogSencer.append(System.lineSeparator());
-		blogSencer.append(StringUtils.repeat(" ", AMPLE_CONTENT + GAP + AMPLE_LEFT));
-		blogSencer.append(System.lineSeparator());
+		// Header del blog
+		blogSencer += (StringUtils.repeat(" ", AMPLE_CONTENT + GAP + AMPLE_LEFT));
+		blogSencer += (System.lineSeparator());
 		
+		blogSencer += (StringUtils.center("BLOG UF5 - PE1 (" + usuaris.size() + " usuaris/es, " + entrades.size() + " entrades)", AMPLE_CONTENT + GAP + AMPLE_LEFT, " "));
+		blogSencer += (System.lineSeparator());
+		
+		blogSencer += (StringUtils.repeat("^", AMPLE_CONTENT + GAP + AMPLE_LEFT));
+		blogSencer += (System.lineSeparator());
+		
+		blogSencer += (StringUtils.repeat(" ", AMPLE_CONTENT + GAP + AMPLE_LEFT));
+		blogSencer += (System.lineSeparator());
+		
+		// Cada una de les entrades del blog
 		Iterator<Entrada> it = entrades.iterator();
 		
 		while (it.hasNext()) {
 			Entrada entrada = (Entrada) it.next();
 			
-			blogSencer.append(imprimirEntrada(entrada.getData(), entrada.getTitol()));
-			blogSencer.append(System.lineSeparator());
+			blogSencer += (imprimirEntrada(entrada.getData(), entrada.getTitol()));
+			blogSencer += (System.lineSeparator());
 		}
 		
 		return blogSencer.toString();

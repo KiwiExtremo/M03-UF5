@@ -1,5 +1,6 @@
 package m3.uf5.pt1;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -71,77 +72,71 @@ public class Entrada extends Publicacio implements Comparable<Entrada> {
 
 	@Override
 	public String imprimirPublicacio(String prefix, int width) {
-		StringBuilder comentariImprimible = new StringBuilder();
+		// Formatejar la data de l'entrada
+		SimpleDateFormat sdf = new SimpleDateFormat("MMMMM yyyy");
+		String dataFormatada = sdf.format(data);
 		
+		// Separar el cos de l'entrada en línies
 		String textWrapper = WordUtils.wrap(text, Blog.AMPLE_CONTENT, System.lineSeparator(), false);
-		
 		String[] textEnLinies = textWrapper.split(System.lineSeparator());
 		
 		int linies = textEnLinies.length - 1;
 		
-		comentariImprimible.append(StringUtils.rightPad(data.toString(), Blog.AMPLE_LEFT, " "));
-		comentariImprimible.append(StringUtils.center(SEPARADOR, Blog.GAP));
-		comentariImprimible.append(StringUtils.center(titol, Blog.AMPLE_CONTENT));
-		comentariImprimible.append(System.lineSeparator());
+		String entrada = "";
 		
-		comentariImprimible.append(StringUtils.rightPad(usuari.getNick() + " lv:" + usuari.nivellUsuari(), Blog.AMPLE_LEFT, " "));
-		comentariImprimible.append(StringUtils.center(SEPARADOR, Blog.GAP));
-		comentariImprimible.append(StringUtils.center(StringUtils.repeat("-", titol.length()), Blog.AMPLE_CONTENT));
-		comentariImprimible.append(System.lineSeparator());
+		// Titol de l'entrada
+		entrada += StringUtils.rightPad(dataFormatada.toUpperCase(), Blog.AMPLE_LEFT, " ");
+		entrada += StringUtils.center(SEPARADOR, Blog.GAP);
+		entrada += StringUtils.center(titol, Blog.AMPLE_CONTENT);
+		entrada += System.lineSeparator();
 		
-		comentariImprimible.append(StringUtils.repeat(" ", Blog.AMPLE_LEFT));
-		comentariImprimible.append(StringUtils.center(SEPARADOR, Blog.GAP));
-		comentariImprimible.append(StringUtils.repeat(" ", Blog.AMPLE_CONTENT));
-		comentariImprimible.append(System.lineSeparator());
+		entrada += StringUtils.rightPad(usuari.getNick() + " lv:" + usuari.nivellUsuari(), Blog.AMPLE_LEFT, " ");
+		entrada += StringUtils.center(SEPARADOR, Blog.GAP);
+		entrada += StringUtils.center(StringUtils.repeat("-", titol.length()), Blog.AMPLE_CONTENT);
+		entrada += System.lineSeparator();
 		
-		for (int i = 0; i < 4; i++) {
-			comentariImprimible.append(StringUtils.rightPad(Comentari.getTextValoracio(i) + " : " + totalValoracionsPerValor(0), Blog.AMPLE_LEFT));
-			comentariImprimible.append(StringUtils.center(SEPARADOR, Blog.GAP));
-			comentariImprimible.append(StringUtils.rightPad(linies >= i ? textEnLinies[i] : " ", Blog.AMPLE_CONTENT));
-			comentariImprimible.append(System.lineSeparator());
-		}
-//		comentariImprimible.append(StringUtils.rightPad(Comentari.getTextValoracio(0) + " : " + totalValoracionsPerValor(0), Blog.AMPLE_LEFT));
-//		comentariImprimible.append(StringUtils.center(SEPARADOR, Blog.GAP));
-//		comentariImprimible.append(StringUtils.rightPad(linies >= 0 ? textEnLinies[0] : " ", Blog.AMPLE_CONTENT));
-//		comentariImprimible.append(System.lineSeparator());
-//		
-//		comentariImprimible.append(StringUtils.rightPad(Comentari.getTextValoracio(1) + "  : " + totalValoracionsPerValor(1), Blog.AMPLE_LEFT));
-//		comentariImprimible.append(StringUtils.center(SEPARADOR, Blog.GAP));
-//		comentariImprimible.append(StringUtils.rightPad(linies >= 1 ? textEnLinies[1] : " ", Blog.AMPLE_CONTENT));
-//		comentariImprimible.append(System.lineSeparator());
-//		
-//		comentariImprimible.append(StringUtils.rightPad(Comentari.getTextValoracio(2) + " : " + totalValoracionsPerValor(2), Blog.AMPLE_LEFT));
-//		comentariImprimible.append(StringUtils.center(SEPARADOR, Blog.GAP));
-//		comentariImprimible.append(StringUtils.rightPad(linies >= 2 ? textEnLinies[2] : " ", Blog.AMPLE_CONTENT));
-//		comentariImprimible.append(System.lineSeparator());
-//		
-//		comentariImprimible.append(StringUtils.rightPad(Comentari.getTextValoracio(3) + " : " + totalValoracionsPerValor(3), Blog.AMPLE_LEFT));
-//		comentariImprimible.append(StringUtils.center(SEPARADOR, Blog.GAP));
-//		comentariImprimible.append(StringUtils.rightPad(linies >= 3 ? textEnLinies[3] : " ", Blog.AMPLE_CONTENT));
-//		comentariImprimible.append(System.lineSeparator());
+		entrada += StringUtils.repeat(" ", Blog.AMPLE_LEFT);
+		entrada += StringUtils.center(SEPARADOR, Blog.GAP);
+		entrada += StringUtils.repeat(" ", Blog.AMPLE_CONTENT);
+		entrada += System.lineSeparator();
+		
+		// Cos de l'entrada i puntuacions a l'esquerra
+		for (int i = 0; i < linies; i++) {
+			// Comprovar què s'ha d'imprimir a l'esquerra
+			if (i == 1) { // Afegir un (1) espai darrere de "1-star" per alinear-ho
+				entrada += StringUtils.rightPad((Comentari.getTextValoracio(i)  + " ") + " : " + totalValoracionsPerValor(0), Blog.AMPLE_LEFT);
+			
+			} else if (i == 4){ // Afejir la mitjana
+				entrada += StringUtils.rightPad("Mitjana : " + valoracioMitjaEntrada(), Blog.AMPLE_LEFT);
+			
+			} else if (i >= 0 && i < 4) { // Afegir les puntuacions
+				entrada += StringUtils.rightPad(Comentari.getTextValoracio(i) + " : " + totalValoracionsPerValor(0), Blog.AMPLE_LEFT);
 
-		comentariImprimible.append(StringUtils.rightPad("Mitjana : " + valoracioMitjaEntrada(), Blog.AMPLE_LEFT));
-		comentariImprimible.append(StringUtils.center(SEPARADOR, Blog.GAP));
-		comentariImprimible.append(StringUtils.rightPad(linies >= 4 ? textEnLinies[4] : " ", Blog.AMPLE_CONTENT));
-		comentariImprimible.append(System.lineSeparator());
-		
-		for (int i = 5; i < linies; i++) {
-			comentariImprimible.append(StringUtils.repeat(" ", Blog.AMPLE_LEFT));
-			comentariImprimible.append(StringUtils.center(SEPARADOR, Blog.GAP));
-			comentariImprimible.append(StringUtils.rightPad(textEnLinies[i], Blog.AMPLE_CONTENT));
-			comentariImprimible.append(System.lineSeparator());
+			} else {
+				entrada += StringUtils.repeat(" ", Blog.AMPLE_LEFT);
+
+			}
+			// Imprimir cos de l'entrada
+			entrada += StringUtils.center(SEPARADOR, Blog.GAP);
+			entrada += StringUtils.rightPad(linies >= i ? textEnLinies[i] : " ", Blog.AMPLE_CONTENT);
+			entrada += System.lineSeparator();
 		}
 
+		entrada += StringUtils.repeat(" ", Blog.AMPLE_LEFT);
+		entrada += StringUtils.center(SEPARADOR, Blog.GAP);
+		entrada += StringUtils.repeat(" ", Blog.AMPLE_CONTENT);
+		entrada += System.lineSeparator();
+		
+		// Imprimir comentaris de l'entrada si s'escau
 		Iterator<Comentari> it = comentaris.iterator();
 		
 		while (it.hasNext()) {
 			Comentari comentari = (Comentari) it.next();
 			
-			comentariImprimible.append(comentari.imprimirPublicacio(prefix, width));
-			comentariImprimible.append(System.lineSeparator());
+			entrada += comentari.imprimirPublicacio(prefix, width);
 		}
 		
-		return comentariImprimible.toString();
+		return entrada;
 	}
 
 	@Override
