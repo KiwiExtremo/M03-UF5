@@ -1,11 +1,18 @@
 package m3.uf5.pt1;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public abstract class Publicacio {
+public abstract class Publicacio implements Serializable {
+	private static final long serialVersionUID = 1L;
+
 	protected Usuari usuari;
 	protected String text;
 	protected Date data;
+
+	public Publicacio() {
+
+	}
 
 	public Publicacio(Usuari usuari, String text) {
 		super();

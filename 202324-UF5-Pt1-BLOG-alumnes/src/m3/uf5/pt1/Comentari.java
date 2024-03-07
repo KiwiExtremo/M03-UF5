@@ -7,6 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 
 public class Comentari extends Publicacio {
+	private static final long serialVersionUID = 1L;
+
 	public static final int IDENT_COMMENT = 5;
 	public static final int IDENT_INC = 2;
 	private int valoracio;
@@ -17,6 +19,10 @@ public class Comentari extends Publicacio {
 		valoracions.put(1, "1-star");
 		valoracions.put(2, "2-stars");
 		valoracions.put(3, "3-stars");
+	}
+
+	public Comentari() {
+		super();
 	}
 
 	public Comentari(Usuari usuari, String text, int valoracio) throws Exception {
@@ -64,35 +70,37 @@ public class Comentari extends Publicacio {
 		// Formatejar la data del comentari
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
 		String dataFormatada = sdf.format(data);
-		
+
 		// Separar el cos del comentari en línies
-		String textWrapper = WordUtils.wrap((usuari.getNick() + ".- \"" + text), Blog.AMPLE_CONTENT, System.lineSeparator(), false);
+		String textWrapper = WordUtils.wrap((usuari.getNick() + ".- \"" + text + "\""), Blog.AMPLE_CONTENT - width,
+				System.lineSeparator(), false);
 		String[] textEnLinies = textWrapper.split(System.lineSeparator());
-		
+
 		String comentari = "";
-		
+
 		// Cos del comentari
 		for (int i = 0; i < textEnLinies.length; i++) {
 			comentari += (StringUtils.repeat(" ", Blog.AMPLE_LEFT));
 			comentari += (StringUtils.center(Entrada.SEPARADOR, Blog.GAP));
-			comentari += (StringUtils.repeat(" ", IDENT_COMMENT + IDENT_INC));
-			comentari += (StringUtils.leftPad(textEnLinies[i] + (i == textEnLinies.length - 1 ? "\"" : ""), Blog.AMPLE_CONTENT - IDENT_COMMENT - IDENT_INC, prefix));
+			comentari += (StringUtils.repeat(" ", IDENT_COMMENT + width));
+			comentari += (StringUtils.leftPad(textEnLinies[i], Blog.AMPLE_CONTENT - width, prefix));
 			comentari += (System.lineSeparator());
 		}
-		
+
 		// Data i valoració del comentari
 		comentari += (StringUtils.repeat(" ", Blog.AMPLE_LEFT));
 		comentari += (StringUtils.center(Entrada.SEPARADOR, Blog.GAP));
-		comentari += (StringUtils.repeat(" ", IDENT_COMMENT + IDENT_INC));
-		comentari += (StringUtils.leftPad(dataFormatada + ", valoració: " + getTextValoracio(getValoracio()), Blog.AMPLE_CONTENT - IDENT_COMMENT - IDENT_INC, prefix));
+		comentari += (StringUtils.repeat(" ", IDENT_COMMENT + width));
+		comentari += (StringUtils.leftPad(dataFormatada + ", valoració: " + getTextValoracio(getValoracio()),
+				Blog.AMPLE_CONTENT - width, prefix));
 		comentari += (System.lineSeparator());
-		
+
 		// Separador de comentaris
 		comentari += (StringUtils.repeat(" ", Blog.AMPLE_LEFT));
 		comentari += (StringUtils.center(Entrada.SEPARADOR, Blog.GAP));
 		comentari += (StringUtils.leftPad("-----", Blog.AMPLE_CONTENT, " "));
 		comentari += (System.lineSeparator());
-		
+
 		return comentari.toString();
 	}
 }

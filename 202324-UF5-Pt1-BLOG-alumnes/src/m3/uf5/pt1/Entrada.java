@@ -5,15 +5,22 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 
 public class Entrada extends Publicacio implements Comparable<Entrada> {
+	private static final long serialVersionUID = 1L;
+
 	public static final String SEPARADOR = "|";
 	public static final String NOT_PROVIDED = "NA";
 	private String titol;
 	private LinkedList<Comentari> comentaris;
+
+	public Entrada() {
+		super();
+	}
 
 	public Entrada(Usuari usuari, String titol, String text) {
 		super(usuari, text);
@@ -75,42 +82,44 @@ public class Entrada extends Publicacio implements Comparable<Entrada> {
 		// Formatejar la data de l'entrada
 		SimpleDateFormat sdf = new SimpleDateFormat("MMMMM yyyy");
 		String dataFormatada = sdf.format(data);
-		
+
 		// Separar el cos de l'entrada en línies
 		String textWrapper = WordUtils.wrap(text, Blog.AMPLE_CONTENT, System.lineSeparator(), false);
 		String[] textEnLinies = textWrapper.split(System.lineSeparator());
-		
+
 		int linies = textEnLinies.length - 1;
-		
+
 		String entrada = "";
-		
+
 		// Titol de l'entrada
 		entrada += StringUtils.rightPad(dataFormatada.toUpperCase(), Blog.AMPLE_LEFT, " ");
 		entrada += StringUtils.center(SEPARADOR, Blog.GAP);
 		entrada += StringUtils.center(titol, Blog.AMPLE_CONTENT);
 		entrada += System.lineSeparator();
-		
+
 		entrada += StringUtils.rightPad(usuari.getNick() + " lv:" + usuari.nivellUsuari(), Blog.AMPLE_LEFT, " ");
 		entrada += StringUtils.center(SEPARADOR, Blog.GAP);
 		entrada += StringUtils.center(StringUtils.repeat("-", titol.length()), Blog.AMPLE_CONTENT);
 		entrada += System.lineSeparator();
-		
+
 		entrada += StringUtils.repeat(" ", Blog.AMPLE_LEFT);
 		entrada += StringUtils.center(SEPARADOR, Blog.GAP);
 		entrada += StringUtils.repeat(" ", Blog.AMPLE_CONTENT);
 		entrada += System.lineSeparator();
-		
+
 		// Cos de l'entrada i puntuacions a l'esquerra
 		for (int i = 0; i < linies; i++) {
 			// Comprovar què s'ha d'imprimir a l'esquerra
 			if (i == 1) { // Afegir un (1) espai darrere de "1-star" per alinear-ho
-				entrada += StringUtils.rightPad((Comentari.getTextValoracio(i)  + " ") + " : " + totalValoracionsPerValor(0), Blog.AMPLE_LEFT);
-			
-			} else if (i == 4){ // Afejir la mitjana
+				entrada += StringUtils.rightPad(
+						(Comentari.getTextValoracio(i) + " ") + " : " + totalValoracionsPerValor(0), Blog.AMPLE_LEFT);
+
+			} else if (i == 4) { // Afejir la mitjana
 				entrada += StringUtils.rightPad("Mitjana : " + valoracioMitjaEntrada(), Blog.AMPLE_LEFT);
-			
+
 			} else if (i >= 0 && i < 4) { // Afegir les puntuacions
-				entrada += StringUtils.rightPad(Comentari.getTextValoracio(i) + " : " + totalValoracionsPerValor(0), Blog.AMPLE_LEFT);
+				entrada += StringUtils.rightPad(Comentari.getTextValoracio(i) + " : " + totalValoracionsPerValor(0),
+						Blog.AMPLE_LEFT);
 
 			} else {
 				entrada += StringUtils.repeat(" ", Blog.AMPLE_LEFT);
@@ -118,7 +127,7 @@ public class Entrada extends Publicacio implements Comparable<Entrada> {
 			}
 			// Imprimir cos de l'entrada
 			entrada += StringUtils.center(SEPARADOR, Blog.GAP);
-			entrada += StringUtils.rightPad(linies >= i ? textEnLinies[i] : " ", Blog.AMPLE_CONTENT);
+			entrada += StringUtils.leftPad(linies >= i ? textEnLinies[i] : " ", Blog.AMPLE_CONTENT);
 			entrada += System.lineSeparator();
 		}
 
@@ -126,17 +135,37 @@ public class Entrada extends Publicacio implements Comparable<Entrada> {
 		entrada += StringUtils.center(SEPARADOR, Blog.GAP);
 		entrada += StringUtils.repeat(" ", Blog.AMPLE_CONTENT);
 		entrada += System.lineSeparator();
-		
+
 		// Imprimir comentaris de l'entrada si s'escau
 		Iterator<Comentari> it = comentaris.iterator();
-		
-		while (it.hasNext()) {
-			Comentari comentari = (Comentari) it.next();
-			
-			entrada += comentari.imprimirPublicacio(prefix, width);
+
+		int numIdents = 0;
+
+		for (int i = 0; i < comentaris.size(); i++) {
+			Comentari comentari = comentaris.get(i);
+
+			if (i != 0) {
+				if (comentari.getUsuari().equals(comentaris.get(i - 1).getUsuari())) {
+					numIdents++;
+
+				} else {
+					numIdents = 0;
+				}
+			}
+
+			entrada += comentari.imprimirPublicacio(prefix, numIdents);
 		}
-		
 		return entrada;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(titol);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return this.compareTo((Entrada) obj) == 0;
 	}
 
 	@Override
@@ -147,15 +176,15 @@ public class Entrada extends Publicacio implements Comparable<Entrada> {
 
 		return this.data.compareTo(e.getData());
 	}
-	
-	private static Calendar toCalendar(Date date){ 
-		  Calendar cal = Calendar.getInstance();
-		  cal.setTime(date);
-		  cal.set(Calendar.HOUR_OF_DAY, 0);
-		  cal.set(Calendar.MINUTE, 0);
-		  cal.set(Calendar.SECOND, 0);
-		  cal.set(Calendar.MILLISECOND, 0);
-		  
-		  return cal;
+
+	private static Calendar toCalendar(Date date) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+
+		return cal;
 	}
 }

@@ -9,6 +9,10 @@ public class Usuari implements Comparable<Usuari> {
 	private String mail;
 	public LinkedList<Publicacio> publicacions;
 
+	public Usuari() {
+
+	}
+
 	public Usuari(String mail, String nick) {
 		super();
 		this.nick = nick;
@@ -60,10 +64,10 @@ public class Usuari implements Comparable<Usuari> {
 	public int compareTo(Usuari u) {
 		return this.mail.compareTo(u.getMail());
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
-			Usuari u = (Usuari) o;
+		Usuari u = (Usuari) o;
 
 		return this.compareTo(u) == 0;
 	}
