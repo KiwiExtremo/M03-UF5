@@ -1,8 +1,12 @@
 package m3.uf5.pt1;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.TreeSet;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class Blog {
 	public static final int AMPLE_LEFT = 15;
@@ -12,6 +16,8 @@ public class Blog {
 	public TreeSet<Entrada> entrades;
 
 	public Blog() {
+		usuaris = new HashSet<>();
+		entrades = new TreeSet<>();
 	}
 
 	public HashSet<Usuari> getUsuaris() {
@@ -30,66 +36,143 @@ public class Blog {
 		this.entrades = entrades;
 	}
 
-	private Entrada cercarEntradaPerDataTitol(Date data, String titol) {
-		if (titol != null) {
-			// TODO Retorna una entrada pel dia «data» amb el mateix «titol», sinó la troba
-			// retorna nul.
-		} else {
+	private Entrada cercarEntradaPerDataTitol(Date data, String titol) throws Exception {
+		if (titol != null && data != null) {
+			for (Entrada entrada : entrades) {
+				if (toCalendar(entrada.getData()).compareTo(toCalendar(data)) == 0 && entrada.getTitol().equals(titol)) {
+					return entrada;
+				}
+			}
 			return null;
+			
+		} else {
+			throw new Exception("Si us plau introdueix una data i un titol.");
 		}
-		return null;
 	}
 
-	private Usuari cercarUsuariPerMail(String mail) {
+	private Usuari cercarUsuariPerMail(String mail) throws Exception {
 		if (mail != null) {
-			// TODO Retorna l'usuari amb aquest «mail», sinó el troba retorna nul.
+			for (Usuari usuari : usuaris) {
+				if (usuari.getMail().equals(mail)) {
+					return usuari;
+				}
+			}
 			return null;
+			
 		} else {
-			return null;
+			throw new Exception("Has d'introduir un mail.");
 		}
 	}
 
-	private Usuari cercarUsuariPerNick(String nick) {
+	private Usuari cercarUsuariPerNick(String nick) throws Exception {
 		if (nick != null) {
-			// TODO Retorna l'usuari amb aquest «nick», sinó el troba retorna nul.
+			for (Usuari usuari : usuaris) {
+				if (usuari.getNick().equals(nick)) {
+					return usuari;
+				}
+			}
 			return null;
+			
 		} else {
-			return null;
+			throw new Exception("Has d'introduir un nick.");
 		}
 	}
 
-	public void nouUsuari(String nick, String mail) {
-		// TODO Afegeix un nou usuari al conjunt d'usuaris del blog només si no existeix
-		// cap altre usuari amb el mateix «mail» o «nick». En cas contrari llença
-		// excepció.
+	public void nouUsuari(String nick, String mail) throws Exception {
+		if (cercarUsuariPerMail(mail) == null && cercarUsuariPerNick(nick) == null) {
+			Usuari nouUsuari = new Usuari(nick, mail);
+			usuaris.add(nouUsuari);
+			
+		} else {
+			throw new Exception("Aquest usuari ja existeix.");
+		}
 	}
 
-	public void afegirEntrada(String mail, String text, String titol) {
-		// TODO Si no existeix cap altre entrada per la data actual amb el mateix
-		// «titol», afegeix a una nova entrada de l'usuari amb «mail» amb el «text»
-		// indicat. En cas contrari llença excepció.
+	public void afegirEntrada(String mail, String titol, String text) throws Exception {
+		Entrada entradaRepetida = cercarEntradaPerDataTitol(new Date(), titol);
+		
+		if (entradaRepetida == null) {
+			Usuari usuariEscriptor = cercarUsuariPerMail(mail);
+			
+			if (usuariEscriptor == null) {
+				throw new Exception("No hi ha cap usuari amb aquest mail.");
+			}
+			
+			Entrada novaEntrada = new Entrada(usuariEscriptor, titol, text);
+			entrades.add(novaEntrada);
+			
+			for (Usuari usuari : usuaris) {
+				if (usuari.equals(usuariEscriptor)) {
+					usuari.afegirPublicacio(novaEntrada);
+				}
+			}
+		} else {
+			throw new Exception("Aquesta entrada ja existeix.");
+		}
 	}
 
-	public void comentarEntrada(String mail, Date data, String titol, String text, int valoracio) {
-		// TODO Si no existeix cap altre entrada per la data actual amb l mateix
-		// «titol», afegeix a una nova entrada de l'usuari amb «mail» amb el «text»
-		// indicat. En cas contrari llença excepció.
-
+	public void comentarEntrada(String mail, Date data, String titol, String text, int valoracio) throws Exception {
+		Entrada entradaRepetida = cercarEntradaPerDataTitol(data, titol);
+		
+		if (entradaRepetida != null) {
+			Usuari usuariEscriptor = cercarUsuariPerMail(mail);
+			
+			if (usuariEscriptor == null) {
+				throw new Exception("No hi ha cap usuari amb aquest mail");
+			}
+				
+			for (Entrada entrada : entrades) {
+				if (entrada.compareTo(entradaRepetida) == 0) {
+					entrada.afegirComentari(usuariEscriptor, text, valoracio);
+				}
+			}
+			
+			for (Usuari usuari : usuaris) {
+				if (usuari.equals(usuariEscriptor)) {
+					usuari.afegirPublicacio(new Comentari(usuari, text, valoracio));
+				}
+			}
+		} else {
+			throw new Exception("No hi ha cap entrada per poder comentar.");
+		}
 	}
 
-	public String imprimirEntrada(Date data, String titol) {
+	public String imprimirEntrada(Date data, String titol) throws Exception {
 		// TODO Si existeix una entrada pel dia «data» amb el mateix «titol», retorna el
 		// text d’aquesta entrada incloent els comentaris. En cas contrari llença
 		// excepció.
-		return null;
+		Entrada entradaImprimible = cercarEntradaPerDataTitol(data, titol);
+		
+		if (entradaImprimible != null) {
+				return entradaImprimible.imprimirPublicacio("", AMPLE_CONTENT);
+				
+		} else {
+			throw new Exception("No hi ha cap entrada que es pugui imprimir.");
+		}
 	}
 
-	public String imprimirBlog() {
-		// TODO Retorna un text amb una capçalera i seguidament totes les entrades del
-		// Blog ordenadament incloent els seus comentairs. La capçalera és un text
-		// centrat on s’indiquen el nombre d’usuaris i entrades del blog, subratllat amb
-		// el caràcter "^". L’ample total és: AMPLE_LEFT+GAP+AMPLE_CONTENT.
-		return null;
+	public String imprimirBlog() throws Exception {
+		StringBuilder blogSencer = new StringBuilder();
+		
+		blogSencer.append(StringUtils.repeat(" ", AMPLE_CONTENT + GAP + AMPLE_LEFT));
+		blogSencer.append(System.lineSeparator());
+		blogSencer.append(StringUtils.center("BLOG UF5 - PE1 (" + usuaris.size() + " usuaris/es, " + entrades.size() + " entrades)", AMPLE_CONTENT + GAP + AMPLE_LEFT, " "));
+		blogSencer.append(System.lineSeparator());
+		blogSencer.append(StringUtils.repeat("^", AMPLE_CONTENT + GAP + AMPLE_LEFT));
+		blogSencer.append(System.lineSeparator());
+		blogSencer.append(StringUtils.repeat(" ", AMPLE_CONTENT + GAP + AMPLE_LEFT));
+		blogSencer.append(System.lineSeparator());
+		
+		Iterator<Entrada> it = entrades.iterator();
+		
+		while (it.hasNext()) {
+			Entrada entrada = (Entrada) it.next();
+			
+			blogSencer.append(imprimirEntrada(entrada.getData(), entrada.getTitol()));
+			blogSencer.append(System.lineSeparator());
+		}
+		
+		return blogSencer.toString();
 	}
 
 	public void desarDadesBlog(String fitxer) {
@@ -100,4 +183,14 @@ public class Blog {
 
 	}
 
+	private static Calendar toCalendar(Date data){ 
+		  Calendar cal = Calendar.getInstance();
+		  cal.setTime(data);
+		  cal.set(Calendar.HOUR_OF_DAY, 0);
+		  cal.set(Calendar.MINUTE, 0);
+		  cal.set(Calendar.SECOND, 0);
+		  cal.set(Calendar.MILLISECOND, 0);
+		  
+		  return cal;
+	}
 }

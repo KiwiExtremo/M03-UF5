@@ -1,19 +1,19 @@
 package m3.uf5.pt1;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class Usuari implements Comparable<Usuari> {
 	public static final int JUNIOR_LIMIT = 2;
 	public static final int SENIOR_LIMIT = 5;
 	private String nick;
 	private String mail;
-	public ArrayList<Publicacio> publicacions; // TODO check proper collection is used
+	public LinkedList<Publicacio> publicacions;
 
-	public Usuari(String nick, String mail) {
+	public Usuari(String mail, String nick) {
 		super();
 		this.nick = nick;
 		this.mail = mail;
-		this.publicacions = new ArrayList<Publicacio>();
+		this.publicacions = new LinkedList<>();
 	}
 
 	public String getNick() {
@@ -32,11 +32,11 @@ public class Usuari implements Comparable<Usuari> {
 		this.mail = mail;
 	}
 
-	public ArrayList<Publicacio> getPublicacions() {
+	public LinkedList<Publicacio> getPublicacions() {
 		return publicacions;
 	}
 
-	public void setPublicacions(ArrayList<Publicacio> publicacions) {
+	public void setPublicacions(LinkedList<Publicacio> publicacions) {
 		this.publicacions = publicacions;
 	}
 
@@ -59,5 +59,12 @@ public class Usuari implements Comparable<Usuari> {
 	@Override
 	public int compareTo(Usuari u) {
 		return this.mail.compareTo(u.getMail());
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+			Usuari u = (Usuari) o;
+
+		return this.compareTo(u) == 0;
 	}
 }
